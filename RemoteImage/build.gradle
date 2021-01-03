@@ -1,7 +1,47 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
 }
+
+def libraryGroupId = 'dev.rasul'
+def libraryArtifactId = 'remoteimage'
+def libraryVersion = '1.0.0'
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = libraryGroupId
+                artifactId = libraryArtifactId
+                version = libraryVersion
+            }
+        }
+    }
+}
+
+bintray {
+    user = project.property('bintray.user')
+    key = project.property('bintray.token')
+    publications = ['release']
+    publish = true
+    override = true
+    pkg {
+        repo = 'RemoteImage'
+        name = libraryArtifactId
+        desc = 'RemoteImage allow to load images from network in Jetpack Compose'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/agarasul/RemoteImage.git'
+        publicDownloadNumbers = true
+        version {
+            name = libraryVersion
+            released = new Date()
+        }
+    }
+}
+
 
 android {
     compileSdkVersion 30
@@ -11,10 +51,15 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildFeatures {
+        buildConfig false
+        compose true
     }
 
     buildTypes {
@@ -31,27 +76,19 @@ android {
         jvmTarget = '1.8'
         useIR = true
     }
+    lintOptions {
+        disable 'GradleDependency'
+    }
 }
+
 
 dependencies {
 
     def compose_version = '1.0.0-alpha09'
-
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.compose.runtime:runtime:1.0.0-alpha09'
-
-
-
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.foundation:foundation-layout:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-rc01'
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.squareup.picasso:picasso:2.8'
 
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
