@@ -25,7 +25,7 @@ Then add this to app level build.gradle
 ```
 dependencies {
     ...
-    implementation 'dev.rasul:remoteimage:1.0.1'
+    implementation 'dev.rasul:remoteimage:1.0.4'
 }
 ```
 
