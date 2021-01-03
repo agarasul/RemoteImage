@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -32,12 +33,12 @@ fun RemoteImage(
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
-    ) {
+
+        ) {
         when (state) {
             is RemoteImageState.Loading -> {
                 if (loading != null) {
                     loading()
-
                 } else {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -54,7 +55,7 @@ fun RemoteImage(
                 Image(
                     bitmap = state.image.asImageBitmap(),
                     contentScale = contentScale,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().testTag("loadedImg")
                 )
             }
             is RemoteImageState.LoadError -> {
@@ -87,16 +88,19 @@ fun loadImage(
     } else {
         Picasso.get().load(url).rotate(rotate).into(object : Target {
             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                state = RemoteImageState.Loaded(bitmap!!)
-
+                if (bitmap == null) {
+                    onBitmapFailed(Exception("Incorrect url"), null)
+                } else {
+                    state = RemoteImageState.Loaded(bitmap)
+                }
             }
 
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                e?.printStackTrace()
                 state = RemoteImageState.LoadError
             }
 
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                state = RemoteImageState.Loading
             }
         })
     }
