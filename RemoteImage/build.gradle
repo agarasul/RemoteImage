@@ -14,6 +14,7 @@ afterEvaluate {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
                 from components.release
+                artifact androidSourcesJar
                 groupId = libraryGroupId
                 artifactId = libraryArtifactId
                 version = libraryVersion
@@ -22,26 +23,24 @@ afterEvaluate {
     }
 }
 
-task sourcesJar(type: Jar) {
-    archiveClassifier.set("sources")
+task androidSourcesJar(type: Jar) {
+    classifier('sources')
     from android.sourceSets.main.java.srcDirs
 }
-artifacts {
-    archives sourcesJar
-}
+
 
 bintray {
     user = project.property('bintray.user')
     key = project.property('bintray.token')
     publications = ['release']
-    publish = true
     override = true
+    publish = true
     configurations = ['archives']
     pkg {
         repo = 'RemoteImage'
         name = libraryArtifactId
         desc = 'RemoteImage allow to load images from network in Jetpack Compose'
-        licenses = ['MIT']
+        licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/agarasul/RemoteImage.git'
         publicDownloadNumbers = true
         version {
@@ -128,4 +127,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         // Set JVM target to 1.8
         jvmTarget = "1.8"
     }
+}
+
+artifacts {
+    archives androidSourcesJar
 }
